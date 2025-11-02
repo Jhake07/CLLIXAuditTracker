@@ -1,25 +1,6 @@
-# Build artifacts
+.vs/
 bin/
 obj/
-
-# User-specific files
 *.user
 *.suo
-*.userosscache
-*.sln.docstates
-
-# Visual Studio
-.vs/
-.vscode/
-
-# NuGet packages
-*.nupkg
-packages/
-*.snupkg
-
-# Logs and temp
-*.log
-*.tmp
-
-# Test results
-TestResults/
+*.dbmdl
