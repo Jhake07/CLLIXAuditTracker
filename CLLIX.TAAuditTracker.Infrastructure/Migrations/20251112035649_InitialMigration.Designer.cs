@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
 {
     [DbContext(typeof(InfrastructureDbContext))]
-    [Migration("20251101135503_InitialMigration")]
+    [Migration("20251112035649_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -34,6 +34,10 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApartmentName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ApartmentStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

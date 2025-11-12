@@ -1,6 +1,8 @@
 ﻿using CLLIX.TAAuditTracker.Application.ContractInterface;
+using CLLIX.TAAuditTracker.Application.Logging;
 using CLLIX.TAAuditTracker.Domain;
 using CLLIX.TAAuditTracker.Infrastructure.DBContext;
+using CLLIX.TAAuditTracker.Infrastructure.Logging;
 using CLLIX.TAAuditTracker.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +35,7 @@ namespace CLLIX.TAAuditTracker.Infrastructure
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<ITravelAgencyAgentRepository, TravelAgencyAgentRepository>();
             services.AddScoped<ITravelAgencyRepository, TravelAgencyRepository>();
-
+            services.AddScoped(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
             return services;
         }
     }

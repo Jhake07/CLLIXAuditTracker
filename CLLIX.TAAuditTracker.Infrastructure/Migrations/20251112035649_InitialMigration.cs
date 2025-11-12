@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -17,10 +16,11 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ApartmentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ApartmentName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    ApartmentStatus = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -33,22 +33,22 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    Department = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(20)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "nvarchar(50)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(50)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "nvarchar(50)", maxLength: 256, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
@@ -65,8 +65,8 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(50)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -80,11 +80,11 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AgencyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AgencyCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AgencyName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    AgencyCode = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -204,39 +204,39 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ApartmentPropertyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    InvoiceNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StatementNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TravelAgentBilling = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ReservationNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ConfirmationNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ApartmentPropertyName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    InvoiceNumber = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    StatementNumber = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    TravelAgentBilling = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    ReservationNumber = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    ConfirmationNumber = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     CheckInDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CheckOutDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Nights = table.Column<int>(type: "int", nullable: false),
-                    GuestName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TravelAgentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BookingSource = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CommissionRate = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GuestName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    TravelAgentName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    BookingSource = table.Column<string>(type: "nvarchar(100)", nullable: false),
+                    CommissionRate = table.Column<string>(type: "nvarchar(100)", nullable: false),
                     DailyTariff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalTariff = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     TotalCommission = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     AmountInTAInvoice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     IsInvoiceMatched = table.Column<bool>(type: "bit", nullable: false),
-                    InvoiceRemarks = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InvoiceRemarks = table.Column<string>(type: "nvarchar(300)", nullable: false),
                     WeekNumber = table.Column<int>(type: "int", nullable: true),
                     InvoiceReceivedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     InvoiceProcessDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RemittanceDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsRemitted = table.Column<bool>(type: "bit", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    Remarks = table.Column<string>(type: "nvarchar(300)", nullable: false),
                     TravelAgencyId = table.Column<int>(type: "int", nullable: true),
                     ApartmentPropertyId = table.Column<int>(type: "int", nullable: true),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -265,12 +265,12 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AgentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AgentCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AgentName = table.Column<string>(type: "nvarchar(50)", nullable: false),
+                    AgentCode = table.Column<string>(type: "nvarchar(30)", nullable: false),
                     TravelAgencyId = table.Column<int>(type: "int", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
