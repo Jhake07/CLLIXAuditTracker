@@ -1,7 +1,11 @@
 ﻿using CLLIX.TAAuditTracker.Application.DTO;
 using CLLIX.TAAuditTracker.Application.Features.ApartmentProperty.Commands.Create;
+using CLLIX.TAAuditTracker.Application.Features.ApartmentProperty.Commands.Update;
 using CLLIX.TAAuditTracker.Application.Features.ApartmentProperty.Queries.GetAllApartment;
+using CLLIX.TAAuditTracker.Application.Features.ApartmentProperty.Queries.GetByIdApartment;
+using CLLIX.TAAuditTracker.Application.Features.ApartmentProperty.Queries.GetByNameApartment;
 using CLLIX.TAAuditTracker.Application.Shared.Exceptions;
+using CLLIX.TAAuditTracker.Application.Shared.Response;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,11 +27,21 @@ namespace CLLIX.TAAuditTracker.WebApi.Controllers
         }
 
         // GET api/ApartmentProperty/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ApartmentPropertyDto>> Get(int id)
+        [HttpGet("id/{id}")]
+        public async Task<ApartmentPropertyDto> Get(int id)
         {
-            // Optional: implement GetById query if needed
-            return Ok("value"); // placeholder
+            var apartment = await _mediator.Send(new GetByIdApartmentPropertyQuery(id));
+
+            return apartment;
+        }
+
+        // GET api/ApartmentProperty/apartmentname
+        [HttpGet("name/{name}")]
+        public async Task<List<ApartmentPropertyDto>> Get(string name)
+        {
+            var apartment = await _mediator.Send(new GetByNameApartmentPropertyQuery(name));
+
+            return apartment;
         }
 
         // POST api/ApartmentProperty
@@ -73,11 +87,37 @@ namespace CLLIX.TAAuditTracker.WebApi.Controllers
             }
         }
 
-        // PUT api/ApartmentProperty/5
+        // PUT: api/ApartmentProperty/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [ProducesResponseType(typeof(CustomResultResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CustomResultResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CustomResultResponse), StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<CustomResultResponse>> Put(int id, UpdateApartmentPropertyCommand updateApartmentProperty)
         {
-            // Optional: implement update logic
+            if (string.IsNullOrWhiteSpace(updateApartmentProperty.NewApartmentName))
+            {
+                return BadRequest(CustomResultResponse.Failure("Apartment name cannot be empty."));
+            }
+
+            var command = new UpdateApartmentPropertyCommand
+            {
+                Id = id,
+                NewApartmentName = updateApartmentProperty.NewApartmentName,
+                ApartmentStatus = updateApartmentProperty.ApartmentStatus
+
+            };
+
+            var result = await _mediator.Send(command);
+
+            if (!result.IsSuccess)
+            {
+                if (result.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    return NotFound(result);
+
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
 
         // DELETE api/ApartmentProperty/5

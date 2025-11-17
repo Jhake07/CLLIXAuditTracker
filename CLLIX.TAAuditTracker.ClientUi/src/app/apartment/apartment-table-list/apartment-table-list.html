@@ -1,0 +1,62 @@
+<table class="table table-sm table-hover align-middle">
+  <thead>
+    <tr class="text-muted small">
+      <!-- Apartment Name Column -->
+      <th
+        appSortableHeader
+        [column]="'apartmentName'"
+        [direction]="sortColumn === 'apartmentName' ? sortDirection : ''"
+        (sort)="sort.emit($event)"
+      >
+        Apartment Name
+        <i class="ms-1 bi"
+           [ngClass]="getSortIcon('apartmentName')">
+        </i>
+      </th>
+
+      <!-- Status Column -->
+      <th
+        appSortableHeader
+        [column]="'apartmentStatus'"
+        [direction]="sortColumn === 'apartmentStatus' ? sortDirection : ''"
+        (sort)="sort.emit($event)"
+      >
+        Status
+        <i class="ms-1 bi"
+           [ngClass]="getSortIcon('apartmentStatus')">
+        </i>
+      </th>
+
+      <th class="text-end">Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    @if (apartmentList.length === 0) {
+      <app-no-results></app-no-results>
+    } @else {
+      @for (apartment of apartmentList; track apartment.id) {
+        <tr>
+          <td>{{ apartment.apartmentName }}</td>
+          <td>
+            <span class="badge" [ngClass]="apartment.apartmentStatus | statusClass">
+              {{ apartment.apartmentStatus }}
+            </span>
+          </td>
+          <td class="text-end">
+            <!-- View Button -->
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="view.emit(apartment)" title="View">
+              <i class="bi bi-eye-fill"></i>
+            </button>
+
+            <!-- Edit Button -->
+            <button class="btn btn-sm btn-outline-secondary me-1" (click)="edit.emit(apartment)"
+                    [disabled]="apartment.apartmentStatus === 'Cancelled'" title="Edit">
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+          </td>
+        </tr>
+      }
+    }
+  </tbody>
+</table>

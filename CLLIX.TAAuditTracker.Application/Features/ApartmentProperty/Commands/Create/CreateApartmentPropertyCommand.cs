@@ -6,5 +6,6 @@ namespace CLLIX.TAAuditTracker.Application.Features.ApartmentProperty.Commands.C
     public class CreateApartmentPropertyCommand : IRequest<CustomResultResponse>
     {
         public string ApartmentName { get; set; } = string.Empty;
+        public string ApartmentStatus { get; set; } = string.Empty;
     }
 }
