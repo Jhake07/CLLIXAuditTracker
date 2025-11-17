@@ -11,17 +11,19 @@ export class ConfirmService {
     return new Promise<boolean>((resolve) => {
       const modalContainer = document.createElement('div');
       modalContainer.innerHTML = `
-        <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title">${title}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="confirmModalLabel">${title}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <div class="modal-body"><p>${message}</p></div>
+              <div class="modal-body">
+                <p>${message}</p>
+              </div>
               <div class="modal-footer">
-                <button id="btnConfirm" class="btn btn-success">${btnOkText}</button>
-                <button id="btnCancel" class="btn btn-danger" data-bs-dismiss="modal">${btnCancelText}</button>
+                <button type="button" class="btn btn-success" id="btnConfirm">${btnOkText}</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="btnCancel">${btnCancelText}</button>
               </div>
             </div>
           </div>
@@ -34,8 +36,15 @@ export class ConfirmService {
       modal.show();
 
       const cleanup = () => {
+        // Blur focused element to avoid accessibility warning
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+
         modal.hide();
-        modalEl.addEventListener('hidden.bs.modal', () => modalContainer.remove());
+        modalEl.addEventListener('hidden.bs.modal', () => {
+          modalContainer.remove();
+        });
       };
 
       modalContainer.querySelector('#btnConfirm')?.addEventListener('click', () => {
