@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using CLLIX.TAAuditTracker.Application.DTOs;
+using CLLIX.TAAuditTracker.Application.DTO;
 using CLLIX.TAAuditTracker.Application.Features.TravelAgency.Commands.Create;
 using CLLIX.TAAuditTracker.Domain;
 

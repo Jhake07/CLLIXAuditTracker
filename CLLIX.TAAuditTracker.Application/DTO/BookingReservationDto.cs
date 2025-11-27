@@ -1,4 +1,4 @@
-﻿namespace CLLIX.TAAuditTracker.Application.DTOs
+﻿namespace CLLIX.TAAuditTracker.Application.DTO
 {
     public class BookingReservationDto
     {

@@ -1,4 +1,4 @@
-﻿using CLLIX.TAAuditTracker.Application.DTOs;
+﻿using CLLIX.TAAuditTracker.Application.DTO;
 using MediatR;
 
 namespace CLLIX.TAAuditTracker.Application.Features.AppUser.Queries.GetAll

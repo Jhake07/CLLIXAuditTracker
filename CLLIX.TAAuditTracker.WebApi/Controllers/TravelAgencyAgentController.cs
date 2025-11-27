@@ -1,4 +1,4 @@
-﻿using CLLIX.TAAuditTracker.Application.DTOs;
+﻿using CLLIX.TAAuditTracker.Application.DTO;
 using CLLIX.TAAuditTracker.Application.Features.TravelAgencyAgent.Commands.Create;
 using CLLIX.TAAuditTracker.Application.Features.TravelAgencyAgent.Queries.GetAllTravelAgencyAgent;
 using CLLIX.TAAuditTracker.Application.Shared.Exceptions;

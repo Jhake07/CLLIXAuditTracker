@@ -1,5 +1,5 @@
 ﻿using CLLIX.TAAuditTracker.Application.ContractInterface;
-using CLLIX.TAAuditTracker.Application.DTOs;
+using CLLIX.TAAuditTracker.Application.DTO;
 using CLLIX.TAAuditTracker.Application.Features.AppUser.Queries.GetAll;
 using MediatR;
 using Microsoft.Extensions.Logging;

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using CLLIX.TAAuditTracker.Application.ContractInterface;
-using CLLIX.TAAuditTracker.Application.DTOs;
+using CLLIX.TAAuditTracker.Application.DTO;    
 using MediatR;
 using Microsoft.Extensions.Logging;
 
