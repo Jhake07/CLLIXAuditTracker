@@ -1,6 +1,8 @@
 using CLLIX.TAAuditTracker.Application;
 using CLLIX.TAAuditTracker.Application.Features;
+using CLLIX.TAAuditTracker.Application.Features.BookingReservation.Commands.Upload;
 using CLLIX.TAAuditTracker.Infrastructure;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,10 +22,11 @@ builder.Services.AddCors(options =>
 });
 
 
-builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddValidatorsFromAssemblyContaining<CreateBookingReservationFromUploadCommandValidator>();
 
 var app = builder.Build();
 

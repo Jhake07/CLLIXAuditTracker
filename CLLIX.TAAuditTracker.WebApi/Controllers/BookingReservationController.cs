@@ -1,40 +1,36 @@
 ﻿using CLLIX.TAAuditTracker.Application.ContractInterface;
-using CLLIX.TAAuditTracker.Application.DTOs;
+using CLLIX.TAAuditTracker.Application.DTO;
 using CLLIX.TAAuditTracker.Application.Features.BookingReservation.Commands.Create;
+using CLLIX.TAAuditTracker.Application.Features.BookingReservation.Commands.Upload;
 using CLLIX.TAAuditTracker.Application.Features.BookingReservation.Queries.GetAllBooking;
 using CLLIX.TAAuditTracker.Application.Shared.Exceptions;
-using CLLIX.TAAuditTracker.Application.Shared.Response;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CLLIX.TAAuditTracker.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingReservationController(IMediator mediator, ILogger<BookingReservationController> logger, IExcelBookingParser excelBookingParser) : ControllerBase
+    public class BookingReservationController(
+        IMediator _mediator,
+        ILogger<BookingReservationController> _logger,
+        IExcelBookingParser _excelBookingParser,
+        IValidator<CreateBookingReservationFromUploadCommand> _validator
+    ) : ControllerBase
     {
-        private readonly IMediator _mediator = mediator;
-        private readonly ILogger _logger = logger;
-        private readonly IExcelBookingParser _excelBookingParser = excelBookingParser;
-
-        // GET: api/<BookingReservationController>
         [HttpGet]
         public async Task<List<BookingReservationDto>> Get()
         {
-            var bookings = await _mediator.Send(new GetBookingReservationQuery());
-            return bookings;
+            return await _mediator.Send(new GetBookingReservationQuery());
         }
 
-        // GET api/<BookingReservationController>/5
         [HttpGet("{id}")]
         public string Get(int id)
         {
             return "value";
         }
 
-        // POST api/<BookingReservationController>
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] CreateBookingReservationCommand command)
         {
@@ -59,7 +55,6 @@ namespace CLLIX.TAAuditTracker.WebApi.Controllers
             catch (BadRequestException ex)
             {
                 _logger.LogError(ex, "Validation or bad request error occurred while creating BookingReservation.");
-
                 return BadRequest(new
                 {
                     Message = "Controller Validation failed.",
@@ -77,32 +72,101 @@ namespace CLLIX.TAAuditTracker.WebApi.Controllers
             }
         }
 
-        [HttpPost("upload-sheet")]
-        public async Task<IActionResult> UploadSheet(IFormFile file, [FromQuery] string sheetName)
+        [HttpPost("preview-upload")]
+        public async Task<IActionResult> PreviewUpload(IFormFile file, [FromQuery] string sheetName)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("File is missing.");
 
             using var stream = file.OpenReadStream();
-            var commands = _excelBookingParser.ParseSheet(stream, sheetName);
+            var parsedRows = _excelBookingParser.ParseSheet(stream, sheetName, out var backfilledRowNumbers);
 
-            var results = new List<CustomResultResponse>();
-            foreach (var command in commands)
+            var previewResult = new UploadSheetPreviewResultDto
             {
-                var result = await _mediator.Send(command);
-                results.Add(result);
+                TotalRows = parsedRows.Count,
+                BackfillSummary = backfilledRowNumbers.Any()
+                    ? $"We have updated the Invoice Number for {backfilledRowNumbers.Count} row{(backfilledRowNumbers.Count > 1 ? "s" : "")}."
+                    : null,
+                PreviewRows = parsedRows
+            };
+
+            foreach (var row in parsedRows)
+            {
+                var validation = await _validator.ValidateAsync(row);
+                if (validation.IsValid)
+                {
+                    previewResult.ValidRows++;
+                }
+                else
+                {
+                    previewResult.Errors.Add(new UploadRowValidationErrorDto
+                    {
+                        RowNumber = row.RowNumber,
+                        ValidationErrors = validation.Errors
+                            .GroupBy(e => e.PropertyName)
+                            .ToDictionary(
+                                g => g.Key,
+                                g => g.Select(e => e.ErrorMessage).ToArray()
+                            )
+                    });
+                }
             }
 
-            return Ok(results);
+            previewResult.InvalidRows = previewResult.Errors.Count;
+            return Ok(previewResult);
         }
 
-        // PUT api/<BookingReservationController>/5
+        [HttpPost("confirm-upload")]
+        public async Task<IActionResult> ConfirmUpload([FromBody] List<CreateBookingReservationFromUploadCommand> parsedRows)
+        {
+            var result = new UploadSheetSaveResultDto
+            {
+                TotalRows = parsedRows.Count
+            };
+
+            foreach (var row in parsedRows)
+            {
+                var response = await _mediator.Send(row);
+                if (response.IsSuccess)
+                {
+                    result.ValidRows++;
+                }
+                else
+                {
+                    result.Errors.Add(new UploadRowValidationErrorDto
+                    {
+                        RowNumber = row.RowNumber,
+                        ValidationErrors = response.ValidationErrors ?? new Dictionary<string, string[]>
+                        {
+                            { "General", new[] { response.Message } }
+                        }
+                    });
+                }
+            }
+
+            result.InvalidRows = result.Errors.Count;
+
+            if (result.Errors.Any())
+            {
+                return BadRequest(new
+                {
+                    message = "Upload aborted due to validation errors.",
+                    summary = result
+                });
+            }
+
+            return Ok(new
+            {
+                message = "Upload completed successfully.",
+                summary = result
+            });
+        }
+
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<BookingReservationController>/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

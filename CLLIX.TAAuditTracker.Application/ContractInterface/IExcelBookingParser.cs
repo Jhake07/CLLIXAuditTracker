@@ -1,9 +1,9 @@
-﻿using CLLIX.TAAuditTracker.Application.Features.BookingReservation.Commands.Create;
+﻿using CLLIX.TAAuditTracker.Application.Features.BookingReservation.Commands.Upload;
 
 namespace CLLIX.TAAuditTracker.Application.ContractInterface
 {
     public interface IExcelBookingParser
     {
-        List<CreateBookingReservationCommand> ParseSheet(Stream fileStream, string sheetName);
+        List<CreateBookingReservationFromUploadCommand> ParseSheet(Stream fileStream, string sheetName, out List<int> backfilledRowNumbers);
     }
 }
