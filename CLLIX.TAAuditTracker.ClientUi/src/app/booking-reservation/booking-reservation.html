@@ -1,1 +1,406 @@
-<p>booking-reservation works!</p>
+<div class="mt-2 ms-4 me-4">
+  <ul class="nav nav-tabs mb-3" id="reservationTabs" role="tablist">
+    
+    <li class="nav-item" role="presentation">
+      <button
+      class="nav-link"
+      [class.active]="activeTab() === 'list'"
+      (click)="activeTab.set('list')"
+      type="button"
+      role="tab"
+    >
+      <i class="bi bi-table"></i> Reservation List
+    </button>
+
+    </li>
+
+    <li class="nav-item" role="presentation">
+       <button
+      class="nav-link"
+      [class.active]="activeTab() === 'form'"
+      (click)="activeTab.set('form')"
+      type="button"
+      role="tab"
+    >
+      <i class="bi bi-textarea-t"></i> Reservation Form
+    </button>
+
+    </li>
+   
+    <li class="nav-item" role="presentation">
+      <button
+      class="nav-link"
+      [class.active]="activeTab() === 'upload'"
+      (click)="activeTab.set('upload')"
+      type="button"
+      role="tab"
+    >
+      <i class="bi bi-file-earmark-arrow-up-fill"></i> Upload Sheet
+    </button>
+
+    </li>
+  </ul>
+
+  <div class="tab-content" id="reservationTabsContent">
+ @if (activeTab() === 'list') {
+  <!-- Booking Reservation Table -->
+       <div class="tab-pane fade show active" id="bookinglist" role="tabpanel">
+        <div class="card shadow-sm border-0">
+          <div class="card-header bg-light fw-semibold">
+            <div class="row align-items-center">
+              <div class="col">
+                Reservation Records
+              </div>
+              <div class="col-auto">
+                <input
+                  id="searchBox"
+                  type="text"
+                  class="form-control form-control-sm"
+                  style="width: 250px;"
+                  [value]="searchBox()"
+                  (input)="searchBox.set($any($event.target).value)"
+                  placeholder="Search here"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body px-3 py-4">
+            <div class="table-responsive">
+              @if (loading()) {
+                <app-table-spinner message="Loading reservation records..."></app-table-spinner>
+              } @else {
+                <app-booking-reservation-table-list
+                  [reservationList]="paginatedReservationList()"
+                  [sortColumn]="sortColumn()"
+                  [sortDirection]="sortDirection()"
+                  (sort)="handleSort($event)"
+                  (edit)="populateFormEdit($event)"
+                  (view)="populateFormView($event)"
+                  (cancel)="handleCancel($event)"
+                ></app-booking-reservation-table-list>
+              }
+            </div>
+
+            <app-paginator
+              [currentPage]="currentPage"
+              [pageSize]="pageSize"
+              [totalItems]="totalFilteredCount"
+              (pageChange)="currentPage.set($event)"
+              (pageSizeChange)="pageSize.set($event)"
+            ></app-paginator>
+          </div>
+        </div>
+       </div>
+ }
+    
+ @if (activeTab() === 'form') {
+   <!-- Manual Entry -->
+      <div class="tab-pane fade show active" id="manual" role="tabpanel">
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-light fw-semibold">              
+              {{ formMode === FormMode.Edit ? 'Update Reservation' : 'Create New Reservation' }}
+            </div>
+            <div class="card-body">
+                @if (showValidationAlert && reservationForm.invalid) {
+                  <div class="alert alert-danger py-2 px-3 small mb-3">
+                    <i class="fa fa-exclamation-circle me-2"></i>
+                    Check the data in the required fields (<span class="text-danger fw-bold">*</span>).
+                  </div>
+                }
+
+                <form [formGroup]="reservationForm" class="row g-3">
+                  <!-- Guest & Apartment -->
+                  <div class="col-md-6">
+                    <label for="guestName" class="form-label">*Guest Name</label>
+                    <input id="guestName" formControlName="guestName" type="text" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-6">
+                    <!-- <label for="apartmentPropertyName" class="form-label">*Apartment</label>
+                    <input id="apartmentPropertyName" formControlName="apartmentPropertyName" type="text" class="form-control form-control-sm" /> -->
+                    <label for="apartmentPropertyName" class="form-label">*Apartment</label>
+                      <select
+                        id="apartmentPropertyName"
+                        formControlName="apartmentPropertyName"
+                        class="form-select form-select-sm"
+                        [class.is-invalid]="reservationForm.get('apartmentPropertyName')?.touched && reservationForm.get('apartmentPropertyName')?.invalid"
+                        aria-describedby="PropertyName Help"
+                      >
+                        <option value="" disabled>Select Apartment</option>
+
+                        @for (apartment of apartmentList(); track apartment.id) {
+                          <option [value]="apartment.apartmentName">
+                            {{ apartment.apartmentName }}
+                          </option>
+                        }
+                      </select>
+                  </div>
+
+                  <!-- Reservation & Confirmation -->
+                  <div class="col-md-6">
+                    <label for="reservationNumber" class="form-label">Reservation Number</label>
+                    <input id="reservationNumber" formControlName="reservationNumber" type="text" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="confirmationNumber" class="form-label">Confirmation Number</label>
+                    <input id="confirmationNumber" formControlName="confirmationNumber" type="text" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Check-in/out & Nights -->
+                  <div class="col-md-4">
+                    <label for="checkInDate" class="form-label">*Check-in Date</label>
+                    <input id="checkInDate" formControlName="checkInDate" type="date" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="checkOutDate" class="form-label">*Check-out Date</label>
+                    <input id="checkOutDate" formControlName="checkOutDate" type="date" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="nights" class="form-label">Nights</label>
+                    <input id="nights" formControlName="nights" type="number" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Travel Agent & Billing -->
+                  <div class="col-md-6">
+                    <label for="travelAgentName" class="form-label">Travel Agent Name</label>
+                    <input id="travelAgentName" formControlName="travelAgentName" type="text" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="travelAgentBilling" class="form-label">Travel Agent Billing</label>
+                    <input id="travelAgentBilling" formControlName="travelAgentBilling" type="text" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Booking Source & Commission -->
+                  <div class="col-md-6">
+                    <label for="bookingSource" class="form-label">Booking Source</label>
+                    <input id="bookingSource" formControlName="bookingSource" type="text" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="commissionRate" class="form-label">Commission Rate</label>
+                    <input id="commissionRate" formControlName="commissionRate" type="text" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Tariffs & Totals -->
+                  <div class="col-md-4">
+                    <label for="dailyTariff" class="form-label">Daily Tariff</label>
+                    <input id="dailyTariff" formControlName="dailyTariff" type="number" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="totalTariff" class="form-label">Total Tariff</label>
+                    <input id="totalTariff" formControlName="totalTariff" type="number" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="totalCommission" class="form-label">Total Commission</label>
+                    <input id="totalCommission" formControlName="totalCommission" type="number" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Invoice & Statement -->
+                  <div class="col-md-6">
+                    <label for="invoiceNumber" class="form-label">Invoice Number</label>
+                    <input id="invoiceNumber" formControlName="invoiceNumber" type="text" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-6">
+                    <label for="statementNumber" class="form-label">Statement Number</label>
+                    <input id="statementNumber" formControlName="statementNumber" type="text" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Invoice Matching -->
+                  <div class="col-md-4">
+                    <label for="amountInTAInvoice" class="form-label">Amount in TA Invoice</label>
+                    <input id="amountInTAInvoice" formControlName="amountInTAInvoice" type="number" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-4">
+                    <label for="isInvoiceMatched" class="form-label">Invoice Matched</label>
+                    <select id="isInvoiceMatched" formControlName="isInvoiceMatched" class="form-select form-select-sm">
+                      <option [ngValue]="true">Yes</option>
+                      <option [ngValue]="false">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="invoiceRemarks" class="form-label">Invoice Remarks</label>
+                    <input id="invoiceRemarks" formControlName="invoiceRemarks" type="text" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Dates & Week -->
+                  <div class="col-md-3">
+                    <label for="invoiceReceivedDate" class="form-label">Invoice Received</label>
+                    <input id="invoiceReceivedDate" formControlName="invoiceReceivedDate" type="date" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="invoiceProcessDate" class="form-label">Invoice Processed</label>
+                    <input id="invoiceProcessDate" formControlName="invoiceProcessDate" type="date" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="dueDate" class="form-label">Due Date</label>
+                    <input id="dueDate" formControlName="dueDate" type="date" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="remittanceDate" class="form-label">Remittance Date</label>
+                    <input id="remittanceDate" formControlName="remittanceDate" type="date" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Week, Remitted, Status, Remarks -->
+                  <div class="col-md-3">
+                    <label for="weekNumber" class="form-label">Week #</label>
+                    <input id="weekNumber" formControlName="weekNumber" type="number" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="isRemitted" class="form-label">Remitted</label>
+                    <select id="isRemitted" formControlName="isRemitted" class="form-select form-select-sm">
+                      <option [ngValue]="true">Yes</option>
+                      <option [ngValue]="false">No</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <input id="status" formControlName="status" type="text" class="form-control form-control-sm" />
+                  </div>
+                  <div class="col-md-3">
+                    <label for="remarks" class="form-label">Remarks</label>
+                    <input id="remarks" formControlName="remarks" type="text" class="form-control form-control-sm" />
+                  </div>
+
+                  <!-- Submit/Reset Buttons -->
+                  <div class="col-12 text-end mt-3">
+                    @if (formMode !== FormMode.View) {
+                      <button
+                        type="button"
+                        class="btn btn-primary btn-sm px-4"
+                        (click)="openConfirmation()"
+                        [disabled]="isSaving()"
+                        [attr.title]="reservationForm.invalid ? 'Please complete all required fields.' : null"
+                      >
+                        @if (isSaving()) {
+                          <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                          Saving...
+                        } @else {
+                          <i class="fa fa-save me-2"></i>
+                          {{ formMode === FormMode.Edit ? 'Update' : 'Save' }}
+                        }
+                      </button>
+                    }
+
+                    @if ((formMode === FormMode.View || formMode === FormMode.Edit) && !isSaving) {
+                      <button type="button" class="btn btn-danger btn-sm ms-2" (click)="resetForm()">
+                        <i class="fa fa-times-circle me-1"></i> Close
+                      </button>
+                    }
+                  </div>
+                </form>
+            </div>
+          </div>
+      </div>
+ }
+        
+@if (activeTab() === 'upload') {
+   <!-- Upload Sheet -->
+      <div class="tab-pane fade show active" id="upload" role="tabpanel">
+        <div class="card  shadow-sm border-0">
+          <div class="card-header bg-light fw-semibold">
+            Upload Booking Sheet
+          </div>
+          <div class="card-body">
+            <form [formGroup]="uploadForm" class="row g-3 justify-content-center">
+              <div class="col-md-5">
+                <label for="sheetFile" class="form-label">Select Excel File</label>
+                <input
+                  type="file"
+                  id="sheetFile"
+                  (change)="onFileSelected($event)"
+                   [disabled]="isPreviewing() || isConfirmed()"
+                  class="form-control form-control-sm"
+                  accept=".xlsx,.xls"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="sheetName" class="form-label">Sheet Name</label>
+                <input type="text" id="sheetName" formControlName="sheetName" class="form-control form-control-sm" />
+
+
+              </div>
+              <div class="col-md-3 text-end align-self-end">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary px-4 w-100"
+                  [disabled]="uploadForm.invalid || isConfirmed()"
+                  (click)="previewUploadSheet()"
+                >
+                  <i class="fa fa-search me-1"></i> Preview
+                </button>
+              </div>
+            </form>
+            
+          @if (loading()) {
+            <app-table-spinner [message]="spinnerMessage()"></app-table-spinner>
+          }
+
+          @if (uploadError()) {
+            <div class="alert alert-danger mt-3">
+              <strong>{{ uploadError() }}</strong>
+            </div>
+          }
+
+          @if (previewResult() && !isConfirmed()) {
+            <div class="mt-4">
+              <div class="alert alert-info">
+                <h5><strong>Preview:</strong></h5>
+                <strong>Sheet Name:</strong> {{ previewResult()?.sheetName }} |
+                <strong>Total Rows:</strong> {{ previewResult()?.totalRows }} |
+                <strong>Valid:</strong> {{ previewResult()?.validRows }} |
+                <strong>Invalid:</strong> {{ previewResult()?.invalidRows }} |
+                @if (backfillSummary()) {
+                  <div class="alert alert-warning mt-2">
+                    {{ backfillSummary() }}
+                  </div>
+                }
+              </div>
+
+              @if (previewErrors().length > 0) {
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                      <tr>
+                        <th scope="col">Row</th>
+                        <th scope="col">Validation Errors</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (err of previewErrors(); track err.rowNumber) {
+                        <tr>
+                          <td>{{ err.rowNumber }}</td>
+                          <td>
+                            <ul class="mb-0">
+                              @for (field of objectKeys(err.validationErrors); track field) {
+                                <li>
+                                  <strong>{{ field }}:</strong>
+                                  {{ err.validationErrors[field].join(', ') }}
+                                </li>
+                              }
+                            </ul>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+
+              @if (previewResult()?.invalidRows === 0 && !isSaving()) {
+                <div class="text-end mt-3">
+                  <button class="btn btn-sm btn-success" (click)="uploadConfirmation()">
+                    <i class="fa fa-check me-1"></i> Confirm Upload
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          </div>
+        </div>
+      </div>
+}
+     
+
+  </div>
+
+</div>

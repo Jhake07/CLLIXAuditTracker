@@ -1,0 +1,62 @@
+<div class="table-responsive w-100">
+
+  <table class="table table-sm table-hover align-middle">
+    <thead>
+      <tr class="text-muted small">
+        <th class="d-none d-md-table-cell">Actions</th>
+        <th appSortableHeader [column]="'status'" [direction]="sortColumn === 'status' ? sortDirection : ''" (sort)="sort.emit($event)">
+          Status
+          <i class="ms-1 bi" [ngClass]="getSortIcon('status')"></i>
+        </th>
+        <th appSortableHeader [column]="'remarks'" [direction]="sortColumn === 'remarks' ? sortDirection : ''" (sort)="sort.emit($event)">
+          Remarks
+          <i class="ms-1 bi" [ngClass]="getSortIcon('remarks')"></i>
+        </th>
+        <th class="d-none d-md-table-cell">Invoice#</th>
+        <th class="d-none d-lg-table-cell">Statement#</th>
+        <th class="d-none d-lg-table-cell">TA Billing</th>
+        <th class="d-none d-lg-table-cell">Reservation#</th>
+        <th class="d-none d-lg-table-cell">Confirmation#</th>      
+        
+      </tr>
+    </thead>
+
+    <tbody>
+      @if (reservationList.length === 0) {
+        <app-no-results></app-no-results>
+      } @else {
+        @for (res of reservationList; track res.id) {
+          <tr>
+            <td class="d-none d-md-table-cell">
+              <button class="btn btn-sm btn-outline-primary me-1" (click)="view.emit(res)" title="View">
+                <i class="bi bi-eye-fill"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary me-1" (click)="edit.emit(res)" title="Edit">
+                <i class="bi bi-pencil-fill"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="cancel.emit(res.id!)" title="Cancel">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="res.status | statusClass">
+                {{ res.status }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="res.remarks | statusClass">
+                {{ res.remarks }}
+              </span>
+            </td>
+            <td>{{ res.invoiceNumber }}</td>
+            <td class="d-none d-md-table-cell">{{ res.statementNumber }}</td>
+            <td class="d-none d-md-table-cell">{{ res.travelAgentBilling }}</td>
+            <td class="d-none d-lg-table-cell">{{ res.reservationNumber }}</td>
+            <td class="d-none d-lg-table-cell">{{ res.confirmationNumber }}</td>        
+            
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
