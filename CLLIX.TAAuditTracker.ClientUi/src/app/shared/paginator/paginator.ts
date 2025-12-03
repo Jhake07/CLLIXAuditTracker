@@ -15,7 +15,7 @@ export class PaginatorComponents {
   @Output() pageChange = new EventEmitter<number>();
   @Output() pageSizeChange = new EventEmitter<number>();
 
-  readonly pageSizeOptions = [5, 10, 25, 50];
+  readonly pageSizeOptions = [10, 25, 50];
 
   readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalItems() / this.pageSize())));
 

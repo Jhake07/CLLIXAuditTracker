@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-table-spinner',
   imports: [],
   templateUrl: './table-spinner.html',
-  styleUrl: './table-spinner.css'
+  styleUrl: './table-spinner.css',
 })
 export class TableSpinner {
-
+  @Input() message: string | null = null;
 }

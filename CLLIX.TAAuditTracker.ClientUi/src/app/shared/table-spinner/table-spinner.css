@@ -1,6 +1,6 @@
-/* spinner.component.css */
 .spinner {
   display: flex;
+  flex-direction: column; /* Stack spinner and message vertically */
   justify-content: center;
   align-items: center;
   height: 200px;
@@ -11,6 +11,7 @@
   width: 64px;
   height: 64px;
 }
+
 .lds-dual-ring:after {
   content: " ";
   display: block;
@@ -22,6 +23,7 @@
   border-color: #3f51b5 transparent #3f51b5 transparent;
   animation: lds-dual-ring 1.2s linear infinite;
 }
+
 @keyframes lds-dual-ring {
   0% {
     transform: rotate(0deg);
@@ -29,4 +31,12 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Optional: style the message */
+.spinner-message {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  color: #555;
+  text-align: center;
 }
