@@ -78,42 +78,52 @@ namespace CLLIX.TAAuditTracker.WebApi.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("File is missing.");
 
-            using var stream = file.OpenReadStream();
-            var parsedRows = _excelBookingParser.ParseSheet(stream, sheetName, out var backfilledRowNumbers);
-
-            var previewResult = new UploadSheetPreviewResultDto
+            try
             {
-                TotalRows = parsedRows.Count,
-                BackfillSummary = backfilledRowNumbers.Any()
-                    ? $"We have updated the Invoice Number for {backfilledRowNumbers.Count} row{(backfilledRowNumbers.Count > 1 ? "s" : "")}."
-                    : null,
-                PreviewRows = parsedRows
-            };
 
-            foreach (var row in parsedRows)
-            {
-                var validation = await _validator.ValidateAsync(row);
-                if (validation.IsValid)
+                using var stream = file.OpenReadStream();
+                var parsedRows = _excelBookingParser.ParseSheet(stream, sheetName, out var backfilledRowNumbers);
+
+                var previewResult = new UploadSheetPreviewResultDto
                 {
-                    previewResult.ValidRows++;
-                }
-                else
+                    SheetName = sheetName,
+                    TotalRows = parsedRows.Count,
+                    BackfillSummary = backfilledRowNumbers.Any()
+                        ? $"We have updated the Invoice Number for {backfilledRowNumbers.Count} row{(backfilledRowNumbers.Count > 1 ? "s" : "")}."
+                        : null,
+                    PreviewRows = parsedRows
+                };
+
+                foreach (var row in parsedRows)
                 {
-                    previewResult.Errors.Add(new UploadRowValidationErrorDto
+                    var validation = await _validator.ValidateAsync(row);
+                    if (validation.IsValid)
                     {
-                        RowNumber = row.RowNumber,
-                        ValidationErrors = validation.Errors
-                            .GroupBy(e => e.PropertyName)
-                            .ToDictionary(
-                                g => g.Key,
-                                g => g.Select(e => e.ErrorMessage).ToArray()
-                            )
-                    });
+                        previewResult.ValidRows++;
+                    }
+                    else
+                    {
+                        previewResult.Errors.Add(new UploadRowValidationErrorDto
+                        {
+                            RowNumber = row.RowNumber,
+                            ValidationErrors = validation.Errors
+                                .GroupBy(e => e.PropertyName)
+                                .ToDictionary(
+                                    g => g.Key,
+                                    g => g.Select(e => e.ErrorMessage).ToArray()
+                                )
+                        });
+                    }
                 }
+
+                previewResult.InvalidRows = previewResult.Errors.Count;
+                return Ok(previewResult);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message); // ✅ This sends the actual error to the frontend
             }
 
-            previewResult.InvalidRows = previewResult.Errors.Count;
-            return Ok(previewResult);
         }
 
         [HttpPost("confirm-upload")]

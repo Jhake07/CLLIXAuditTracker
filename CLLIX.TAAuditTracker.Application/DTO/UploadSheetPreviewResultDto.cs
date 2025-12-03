@@ -4,6 +4,7 @@ namespace CLLIX.TAAuditTracker.Application.DTO
 {
     public class UploadSheetPreviewResultDto
     {
+        public string SheetName { get; set; } = string.Empty;
         public int TotalRows { get; set; }
         public int ValidRows { get; set; }
         public int InvalidRows { get; set; }

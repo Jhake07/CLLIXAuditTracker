@@ -25,6 +25,8 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Repositories
             {
                 var invoice = worksheet.Cells[row, 1].Text?.Trim();
                 var billing = worksheet.Cells[row, 3].Text?.Trim();
+                var stat = worksheet.Cells[row, 24].Text?.Trim();
+                var remark = worksheet.Cells[row, 25].Text?.Trim();
 
                 var command = new CreateBookingReservationFromUploadCommand
                 {
@@ -69,6 +71,8 @@ namespace CLLIX.TAAuditTracker.Infrastructure.Repositories
                 {
                     pending.InvoiceNumber = invoice;
                     pending.TravelAgentBilling = billing;
+                    pending.Status = stat;
+                    pending.Remarks = remark;
                     reservations.Add(pending);
                     backfilledRowLog.Add((pending.RowNumber, invoice!));
                 }
